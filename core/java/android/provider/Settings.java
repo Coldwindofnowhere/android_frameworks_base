@@ -3595,6 +3595,16 @@ public final class Settings {
         public static final String BUTTON_BACKLIGHT_TIMEOUT = "button_backlight_timeout";
 
         /**
+         * @hide
+         */
+        public static final String BUTTON_BACK_KILL_TIMEOUT = "button_back_kill_timeout";
+
+        /**
+         * @hide
+         */
+        public static final String BUTTON_BACK_KILL_ENABLE = "button_back_kill_enable";
+
+        /**
          * Show onscreen keys for hw button devices
          * @hide
          */
@@ -3739,10 +3749,49 @@ public final class Settings {
         public static final String RECENTS_SHOW_SEARCH_BAR = "recents_show_search_bar";
 
         /**
-         *  Enable statusbar double tap gesture on to put device to sleep
+         * Whether the camera launch gesture should vibrate
+         * @hide
+         */
+        public static final String CAMERA_GESTURE_VIBRATE = "camera_gesture_vibrate";
+
+        /**
+         * Enable statusbar double tap gesture on to put device to sleep
          * @hide
          */
         public static final String DOUBLE_TAP_SLEEP_GESTURE = "double_tap_sleep_gesture";
+
+        /**
+         * Enable weather display in header view
+         * @hide
+         */
+        public static final String STATUS_BAR_HEADER_WEATHER = "status_bar_header_weather";
+
+        /**
+         * icon pack to use for weather condition images
+         * @hide
+         */
+        public static final String STATUS_BAR_WEATHER_ICON_PACK = "status_bar_weather_icon_pack";
+
+        /**
+         * Enable to use tablet style navigation bar
+         * @hide
+         */
+        public static final String ENABLE_TABLET_NAVIGATION = "enable_tablet_navigation";
+
+        /**
+         * @hide
+         */
+        public static final String QS_TILE_EQUAL = "qs_tile_equal";
+
+        /**
+         * @hide
+         */
+        public static final String QS_TILE_COLUMNS = "qs_tile_columns";
+
+        /**
+         * @hide
+         */
+        public static final String QS_TILE_BG_OPACITY = "qs_tile_bg_opacity";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -5013,6 +5062,12 @@ public final class Settings {
          * @hide
          */
         public static final String KEYGUARD_QUICK_UNLOCK = "keyguard_quick_unlock";
+
+        /**
+         * Enable voice lockscreen shortcut
+         * @hide
+         */
+        public static final String LOCKSCREEN_VOICE_SHORTCUT = "lockscreen_voice_shortcut";
 
         /**
          * Whether lock pattern will vibrate as user enters (0 = false, 1 =

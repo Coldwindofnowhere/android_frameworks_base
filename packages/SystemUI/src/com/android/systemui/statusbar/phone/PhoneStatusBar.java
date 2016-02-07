@@ -316,7 +316,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     // expanded notifications
     NotificationPanelView mNotificationPanel; // the sliding/resizing panel within the notification window
     View mExpandedContents;
-    TextView mNotificationPanelDebugText;
+    //TextView mNotificationPanelDebugText;
 
     // settings
     private QSPanel mQSPanel;
@@ -371,6 +371,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private boolean mRecentsConsumed;
     private boolean mBackConsumed;
     private boolean mDoubleTabSleep;
+    private boolean mEnableTabletNavigation;
 
     /**
      * {@link android.provider.Settings.System#SCREEN_AUTO_BRIGHTNESS_ADJ} uses the range [-1, 1].
@@ -487,6 +488,24 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             mContext.getContentResolver().registerContentObserver(Settings.System.getUriFor(
                     Settings.System.DOUBLE_TAP_SLEEP_GESTURE),
                     false, this, UserHandle.USER_ALL);
+            mContext.getContentResolver().registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_HEADER_WEATHER),
+                    false, this, UserHandle.USER_ALL);
+            mContext.getContentResolver().registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_WEATHER_ICON_PACK),
+                    false, this, UserHandle.USER_ALL);
+            mContext.getContentResolver().registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.ENABLE_TABLET_NAVIGATION),
+                    false, this, UserHandle.USER_ALL);
+            mContext.getContentResolver().registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_TILE_EQUAL),
+                    false, this, UserHandle.USER_ALL);
+            mContext.getContentResolver().registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_TILE_COLUMNS),
+                    false, this, UserHandle.USER_ALL);
+            mContext.getContentResolver().registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_TILE_BG_OPACITY),
+                    false, this, UserHandle.USER_ALL);
 
             update();
         }
@@ -500,6 +519,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             int showNavBar = Settings.System.getIntForUser(
                     mContext.getContentResolver(), Settings.System.NAVIGATION_BAR_SHOW,
                     -1, mCurrentUserId);
+
             if (showNavBar != -1){
                 boolean showNavBarBool = showNavBar == 1;
                 if (showNavBarBool !=  mShowNavBar){
@@ -517,8 +537,43 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             mDoubleTabSleep = Settings.System.getIntForUser(
                     mContext.getContentResolver(), Settings.System.DOUBLE_TAP_SLEEP_GESTURE, 0, mCurrentUserId) == 1;
 
+            int tabletNavigation = Settings.System.getIntForUser(
+                    mContext.getContentResolver(), Settings.System.ENABLE_TABLET_NAVIGATION, -1, mCurrentUserId);
+            if (tabletNavigation != -1 && mShowNavBar) {
+                boolean tabletNavigationBool = tabletNavigation == 1;
+                if (tabletNavigationBool != mEnableTabletNavigation) {
+                    if (mNavigationBarView != null){
+                        mWindowManager.removeViewImmediate(mNavigationBarView);
+                        mNavigationBarView = null;
+                    }
+                    mEnableTabletNavigation = tabletNavigationBool;
+                    // removing view and immediately adding it afterward is breaking
+                    // WindowManager so add a small delay before adding
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateNavigationBar();
+                        }
+                    }, 500);
+                }
+            }
+
             if (mStatusBarWindow != null) {
                 mStatusBarWindow.setDoubleTabSleep(mDoubleTabSleep);
+            }
+
+            if (mHeader != null) {
+                mHeader.settingsChanged();
+            }
+
+            if (mQSPanel != null) {
+                mQSPanel.updateSettings();
+            }
+
+            if (mNotificationPanel != null) {
+                final int qsAlphaValue = Settings.System.getIntForUser(
+                        mContext.getContentResolver(), Settings.System.QS_TILE_BG_OPACITY, 255, mCurrentUserId);
+                mNotificationPanel.setQSBackgroundAlpha(qsAlphaValue);
             }
         }
     }
@@ -734,6 +789,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mBackKillTimeout = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_backKillTimeout);
 
+        mEnableTabletNavigation = Settings.System.getIntForUser(
+                mContext.getContentResolver(), Settings.System.ENABLE_TABLET_NAVIGATION, -1, mCurrentUserId) == 1;
+
         super.start(); // calls createAndAddWindows()
 
         mMediaSessionManager
@@ -831,18 +889,23 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mNotificationPanel.setHeadsUpManager(mHeadsUpManager);
         mNotificationData.setHeadsUpManager(mHeadsUpManager);
 
-        if (MULTIUSER_DEBUG) {
+        /*if (MULTIUSER_DEBUG) {
             mNotificationPanelDebugText = (TextView) mNotificationPanel.findViewById(
                     R.id.header_debug_info);
             mNotificationPanelDebugText.setVisibility(View.VISIBLE);
-        }
+        }*/
 
         try {
             mShowNavBar = mWindowManagerService.hasNavigationBar();
             if (DEBUG) Log.v(TAG, "hasNavigationBar=" + mShowNavBar);
             if (mShowNavBar) {
-                mNavigationBarView =
-                    (NavigationBarView) View.inflate(context, R.layout.navigation_bar, null);
+                if (mEnableTabletNavigation) {
+                    mNavigationBarView =
+                        (NavigationBarView) View.inflate(context, R.layout.navigation_bar_tablet, null);
+                } else {
+                    mNavigationBarView =
+                        (NavigationBarView) View.inflate(context, R.layout.navigation_bar, null);
+                }
 
                 mNavigationBarView.setDisabledFlags(mDisabled1);
                 mNavigationBarView.setBar(this);
@@ -1325,6 +1388,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private void notifyNavigationBarScreenOn(boolean screenOn) {
         if (mNavigationBarView == null) return;
         mNavigationBarView.notifyScreenOn(screenOn);
+    }
+
+    private void notifyHeaderViewScreenOn(boolean screenOn) {
+        if (mHeader == null) return;
+        mHeader.notifyScreenOn(screenOn);
     }
 
     private WindowManager.LayoutParams getNavigationBarLayoutParams() {
@@ -3213,9 +3281,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 notifyHeadsUpScreenOff();
                 finishBarAnimations();
                 resetUserExpandedStates();
+                notifyHeaderViewScreenOn(false);
             }
             else if (Intent.ACTION_SCREEN_ON.equals(action)) {
                 notifyNavigationBarScreenOn(true);
+                notifyHeaderViewScreenOn(true);
             } else if ("com.android.systemui.TOGGLE_FLASHLIGHT".equals(action)) {
                 mFlashlightController.toggleFlashlight();
             } else if (Intent.ACTION_KEYGUARD_WALLPAPER_CHANGED.equals(action)) {
@@ -3295,7 +3365,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     @Override
     public void userSwitched(int newUserId) {
         super.userSwitched(newUserId);
-        if (MULTIUSER_DEBUG) mNotificationPanelDebugText.setText("USER " + newUserId);
+        //if (MULTIUSER_DEBUG) mNotificationPanelDebugText.setText("USER " + newUserId);
         animateCollapsePanels();
         updatePublicMode();
         updateNotifications();
@@ -4453,7 +4523,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             pm.wakeUp(SystemClock.uptimeMillis(), "com.android.systemui:CAMERA_GESTURE");
             mStatusBarKeyguardViewManager.notifyDeviceWakeUpRequested();
         }
-        vibrateForCameraGesture();
+        final boolean vbrateForGesture = Settings.System.getIntForUser(
+                mContext.getContentResolver(), Settings.System.CAMERA_GESTURE_VIBRATE, 1, mCurrentUserId) == 1;
+        if(vbrateForGesture) {
+            vibrateForCameraGesture();
+        }
         if (!mStatusBarKeyguardViewManager.isShowing()) {
             startActivity(KeyguardBottomAreaView.INSECURE_CAMERA_INTENT,
                     true /* dismissShade */);
@@ -4647,8 +4721,13 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         if (mShowNavBar) {
             if (mNavigationBarView == null) {
-                mNavigationBarView =
-                    (NavigationBarView) View.inflate(mContext, R.layout.navigation_bar, null);
+                if (mEnableTabletNavigation) {
+                    mNavigationBarView =
+                        (NavigationBarView) View.inflate(mContext, R.layout.navigation_bar_tablet, null);
+                } else {
+                    mNavigationBarView =
+                        (NavigationBarView) View.inflate(mContext, R.layout.navigation_bar, null);
+                }
 
                 mNavigationBarView.setDisabledFlags(mDisabled1, true);
                 mNavigationBarView.setBar(this);
@@ -4726,9 +4805,16 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 if (activityManager.isInLockTaskMode()) {
                     handleLongPressBackRecents(v);
                 } else {
-                    // else long press means kill
-                    mHandler.postDelayed(mKillTask, mBackKillTimeout);
-                    mBackKillPending = true;
+                    final boolean backKillEnabled = Settings.System.getIntForUser(mContext.getContentResolver(),
+                            Settings.System.BUTTON_BACK_KILL_ENABLE, 1, mCurrentUserId) == 1;
+                    final int backKillTimeout = Settings.System.getIntForUser(mContext.getContentResolver(),
+                            Settings.System.BUTTON_BACK_KILL_TIMEOUT, mBackKillTimeout, mCurrentUserId);
+
+                    if (backKillEnabled) {
+                        // else long press means kill
+                        mHandler.postDelayed(mKillTask, backKillTimeout);
+                        mBackKillPending = true;
+                    }
                 }
             } catch (RemoteException e) {
                 Log.d(TAG, "Unable to reach activity manager", e);

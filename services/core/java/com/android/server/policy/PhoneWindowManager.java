@@ -6483,7 +6483,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             PackageManager.FEATURE_TELEVISION)) {
                         theme = com.android.internal.R.style.Theme_Leanback_Dialog_Alert;
                     } else {
-                        theme = 0;
+                        theme = com.android.internal.R.style.Theme_Material_DayNight_Dialog_Alert;
                     }
 
                     mBootMsgDialog = new ProgressDialog(mContext, theme) {
@@ -7450,9 +7450,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
          // check for locked mode
         if (!stopLockTaskMode()) {
-            // else kill app
-            mHandler.postDelayed(mKillTask, mBackKillTimeout);
-            mBackKillPending = true;
+            final boolean backKillEnabled = Settings.System.getIntForUser(mContext.getContentResolver(),
+                    Settings.System.BUTTON_BACK_KILL_ENABLE, 1, UserHandle.USER_CURRENT) == 1;
+            final int backKillTimeout = Settings.System.getIntForUser(mContext.getContentResolver(),
+                    Settings.System.BUTTON_BACK_KILL_TIMEOUT, mBackKillTimeout, UserHandle.USER_CURRENT);
+
+            if (backKillEnabled) {
+                // else kill app
+                mHandler.postDelayed(mKillTask, backKillTimeout);
+                mBackKillPending = true;
+            }
         }
     }
 

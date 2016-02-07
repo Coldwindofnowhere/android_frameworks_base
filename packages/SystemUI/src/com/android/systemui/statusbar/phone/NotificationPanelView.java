@@ -983,6 +983,7 @@ public class NotificationPanelView extends PanelView implements
             mStatusBar.setQsExpanded(expanded);
             mQsPanel.setExpanded(expanded);
             mNotificationContainerParent.setQsExpanded(expanded);
+            mHeader.setQsExpanded(expanded);
         }
     }
 
@@ -2449,5 +2450,11 @@ public class NotificationPanelView extends PanelView implements
         ActivityManager am = getContext().getSystemService(ActivityManager.class);
         List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
         return !tasks.isEmpty() && pkgName.equals(tasks.get(0).topActivity.getPackageName());
+    }
+
+    public void setQSBackgroundAlpha(int alpha) {
+        if (mQsContainer != null) {
+            mQsContainer.getBackground().setAlpha(alpha);
+        }
     }
 }
