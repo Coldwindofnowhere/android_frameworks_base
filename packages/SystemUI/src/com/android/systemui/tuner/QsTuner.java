@@ -236,6 +236,8 @@ public class QsTuner extends Fragment implements Callback {
         else if (mSpec.equals("hw_keys")) return R.string.quick_settings_hwkeys_title;
         else if (mSpec.equals("sound")) return R.string.quick_settings_sound_label;
         else if (mSpec.equals("lockscreen")) return R.string.quick_settings_lockscreen_label;
+        else if (mSpec.equals("pulse")) return R.string.quick_settings_pulse_label;
+        else if (mSpec.equals("pie")) return R.string.quick_settings_pie;
         return 0;
     }
 
@@ -243,7 +245,7 @@ public class QsTuner extends Fragment implements Callback {
 
         public CustomHost(Context context) {
             super(context, null, null, null, null, null, null, null, null, null,
-                    null, null, new BlankSecurityController());
+                    null, null, new BlankSecurityController(), null);
         }
 
         @Override
@@ -491,6 +493,8 @@ public class QsTuner extends Fragment implements Callback {
 	    else if (mSpec.equals("hw_keys")) return R.drawable.ic_qs_hwkeys_on;
 	    else if (mSpec.equals("sound")) return R.drawable.ic_qs_ringer_silent;
 	    else if (mSpec.equals("lockscreen")) return R.drawable.ic_qs_lock_screen_on;
+	    else if (mSpec.equals("pulse")) return R.drawable.ic_qs_pulse;
+	    else if (mSpec.equals("pie")) return R.drawable.ic_qs_pie;
             return R.drawable.android;
         }
 
