@@ -3797,6 +3797,42 @@ public final class Settings {
          * @hide
          */
         public static final String FAB_ANIMATION_STYLE= "fab_animation_style";
+               
+        /**
+         * TaskView Pin Color
+         * @hide
+         */
+        public static final String PIN_BUTTON_COLOR = "pin_button_color";
+
+       /**
+         * TaskView MW button Color 
+         * @hide
+         */
+        public static final String MW_BUTTON_COLOR= "mw_button_color";
+
+       /**
+         * TaskView Float Button Color
+         * @hide
+         */
+        public static final String FLOAT_BUTTON_COLOR= "float_button_color";
+
+       /**
+         * TaskView Kill Button Color
+         * @hide
+         */
+        public static final String KILL_APP_BUTTON_COLOR= "kill_app_button_color";
+
+       /**
+         * TaskView App Color
+         * @hide
+         */
+        public static final String TV_APP_COLOR= "tv_app_color";
+        
+        /**
+         * TaskView App Description Text Color
+         * @hide
+         */
+        public static final String TV_APP_TEXT_COLOR= "tv_app_text_color";
 
         /**
          * Whether to show or hide search bar in recents view
@@ -4017,6 +4053,36 @@ public final class Settings {
          */
         public static final String NETWORK_TRAFFIC_HIDEARROW = "network_traffic_hidearrow";
         
+        /**
+         * Custom Pulse Widths
+         * @hide
+         */
+        public static final String PULSE_CUSTOM_DIMEN = "pulse_custom_dimen";
+                        
+        /**
+         * Custom Spacing Between Pulse Bars
+         * @hide
+         */
+        public static final String PULSE_CUSTOM_DIV = "pulse_custom_div";
+        
+        /**
+         * Size of Filled bars
+         * @hide
+         */
+        public static final String PULSE_FILLED_BLOCK_SIZE = "pulse_filled_block_size";
+        
+         /**
+         * Size of Empty Spaces Between Horizontal Visualizer Bars
+         * @hide
+         */
+        public static final String PULSE_EMPTY_BLOCK_SIZE = "pulse_empty_block_size";
+        
+         /**
+         * Pulse Fudge Factor
+         * @hide
+         */
+        public static final String PULSE_CUSTOM_FUDGE_FACTOR = "pulse_custom_fudge_factor";
+        
 	/**
          * Hide lockscreen date
          * @hide
@@ -4133,6 +4199,59 @@ public final class Settings {
          * @hide
          */
         public static final String HEADER_WEATHERTWO_COLOR = "header_weather2_color";
+        
+        
+        /**
+         * Dashboard custom colors switch
+         * @hide
+         */
+        public static final String DASHBOARD_CUSTOM_COLORS = "db_custom_colors";
+
+	/**
+         * Dashboard icon colors
+         * @hide
+         */
+        public static final String DB_ICON_COLOR = "db_icon_color";
+
+	/**
+         * Dashboard text color
+         * @hide
+         */
+        public static final String DB_TEXT_COLOR = "db_text_color";
+        
+        
+        /**
+         * Dashboard category text color
+         * @hide
+         */
+        public static final String SETTINGS_CATEGORY_TEXT_COLOR = "settings_category_text_color";
+        
+        
+         /**
+         * Dashboard color
+         * @hide
+         */
+        public static final String SETTINGS_BG_COLOR = "settings_bg_color";
+        
+        
+        /**
+         * Dashboard title text size
+         * @hide
+         */
+        public static final String SETTINGS_TITLE_TEXT_SIZE = "settings_title_text_size";
+
+        /**
+         * Dashboard category text size
+         * @hide
+         */
+        public static final String SETTINGS_CATEGORY_TEXT_SIZE = "settings_category_text_size";
+        
+        
+        /**
+         * Settings Dash Font Style
+         * @hide
+         */
+        public static final String DASHBOARD_FONT_STYLE = "dashboard_font_style";
 
 
 
@@ -5383,6 +5502,33 @@ public final class Settings {
          * @hide
          */
         public static final String HIDE_FROM_RECENTS_LIST = "hide_from_recents_list";
+		
+	/**
+         * Option to launch slim actions in floating mode
+         * @hide
+         */
+        public static final String SLIM_ACTION_FLOATS = "slim_action_floats";
+
+        /**
+         * Control the use of floating windows
+         * 0 = off
+         * 1 = on, duh
+         * @hide
+         */
+        public static final String FLOATING_WINDOW_MODE = "floating_window_mode";
+
+        /**
+         * Launch gesture anywhere in floating window or not
+         * @hide
+         */
+        public static final String GESTURE_ANYWHERE_FLOATING = "gesture_anywhere_floating";
+
+        /**
+         * Whether to display a menu containing 'Wipe data', 'Force close' and other options
+         * in the notification area and in the recent app list
+         * @hide
+         */
+        public static final String DEVELOPMENT_SHORTCUT = "development_shortcut";
 
         /**
          * Config for advanced pa pie 2.0
@@ -5557,6 +5703,25 @@ public final class Settings {
          * @hide
          */
         public static final String PA_PIE_ALWAYS_RIGHT = "pa_pie_always_right";
+
+        /**
+         * Hide carrier label based on number of notification icons
+         * @hide
+         */
+        public static final String HIDE_CARRIER_MAX_SWITCH = "hide_carrier_max_switch";
+
+        /**
+         * Hide the carrier label on the status bar depending on the amount of notifications
+         *
+         * 1 notification icon (always)
+         * 2 notification icons
+         * 3 notification icons
+         * 4 notification icons
+         * 5 notification icons
+         * 6 notification icons
+         * @hide
+         */
+        public static final String HIDE_CARRIER_MAX_NOTIFICATION = "hide_carrier_max_notification";
 
         /**
          * Settings to backup. This is here so that it's in the same place as the settings
@@ -8654,7 +8819,7 @@ public final class Settings {
          * {@hide}
          */
         public static final String AIRPLANE_MODE_TOGGLEABLE_RADIOS = "airplane_mode_toggleable_radios";
-
+        
         /**
          * A Long representing a bitmap of profiles that should be disabled when bluetooth starts.
          * See {@link android.bluetooth.BluetoothProfile}.
@@ -8672,7 +8837,7 @@ public final class Settings {
          *   "00:11:22,0;01:02:03:04,2"
          * @hide
          */
-       public static final String BLUETOOTH_INTEROPERABILITY_LIST = "bluetooth_interoperability_list";
+        public static final String BLUETOOTH_INTEROPERABILITY_LIST = "bluetooth_interoperability_list";
 
         /**
          * The policy for deciding when Wi-Fi should go to sleep (which will in

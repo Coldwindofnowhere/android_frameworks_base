@@ -1618,7 +1618,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         @Override
         public void run() {
 	    if (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.SCREEN_SHOT_SHORTCUT_SWITCH, 0) == 1) {
+                Settings.System.SCREEN_SHOT_SHORTCUT_SWITCH, 1) == 1) {
             takeScreenshot();
             } else {
              Slog.d(TAG, "ScreenShot Shortcut Disabled");
@@ -1630,7 +1630,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         @Override
         public void run() {
 	    if (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.SCREEN_RECORD_SHORTCUT_SWITCH, 0) == 1) {
+                Settings.System.SCREEN_RECORD_SHORTCUT_SWITCH, 1) == 1) {
             takeScreenrecord();
             } else {
              Slog.d(TAG, "ScreenRecord Shortcut Disabled");
@@ -2015,10 +2015,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                                 mNavigationBarLeftInLandscape) {
                             requestTransientBars(mNavigationBar);
                         }
-                        if (mShowKeyguardOnLeftSwipe && isKeyguardShowingOrOccluded()) {
+                        boolean focusedWindowIsExternalKeyguard = false;
+                        if (mFocusedWindow != null) {
+                            focusedWindowIsExternalKeyguard = (mFocusedWindow.getAttrs().type
+                                    & WindowManager.LayoutParams.TYPE_KEYGUARD_PANEL) != 0;
+                        }
+                        if (mShowKeyguardOnLeftSwipe && isKeyguardShowingOrOccluded()
+                                && focusedWindowIsExternalKeyguard) {
                             // Show keyguard
                             mKeyguardDelegate.showKeyguard();
-                            mShowKeyguardOnLeftSwipe = false;
                         }
                     }
                     @Override
@@ -3030,7 +3035,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
 
             PhoneWindow win = new PhoneWindow(context);
-            win.setIsStartingWindow(true);
             final TypedArray ta = win.getWindowStyle();
             if (ta.getBoolean(
                         com.android.internal.R.styleable.Window_windowDisablePreview, false)
@@ -4838,6 +4842,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 (win.getAttrs().flags & WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM) != 0;
         boolean notFocusableForIm = notFocusable ^ altFocusableIm;
         return !notFocusableForIm;
+    }
+
+    public Rect getContentRect() {
+        return new Rect(mContentLeft, mContentTop, mContentRight, mContentBottom);
     }
 
     /** {@inheritDoc} */
