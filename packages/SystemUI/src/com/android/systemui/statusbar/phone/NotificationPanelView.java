@@ -34,6 +34,7 @@ import android.database.ContentObserver;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -62,6 +63,7 @@ import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.internal.logging.MetricsLogger;
@@ -272,6 +274,20 @@ public class NotificationPanelView extends PanelView implements
     private int mQSShadeAlpha;
 
     private int mQSBackgroundColor;
+    // QS stroke
+    private int mQSStroke;
+    private int mCustomStrokeColor;
+    private int mCustomStrokeThickness;
+    private int mCustomCornerRadius;
+    private int mCustomDashWidth;
+    private int mCustomDashGap;
+
+    // AICP panel logo
+    private ImageView mRRPanelLogo;
+    private int mQSPanelLogo;
+    private int mQSPanelLogoColor;
+    private int mQSPanelLogoAlpha;
+
     // Used to identify whether showUnlock() can dismiss the keyguard
     // or not.
     // TODO - add a new state to make it easier to identify keyguard vs
@@ -441,11 +457,11 @@ public class NotificationPanelView extends PanelView implements
         mKeyguardStatusView = (KeyguardStatusView) findViewById(R.id.keyguard_status_view);
         mQsContainer = (QSContainer) findViewById(R.id.quick_settings_container);
         mQsPanel = (QSPanel) findViewById(R.id.quick_settings_panel);
+        mRRPanelLogo = (ImageView) findViewById(R.id.rr_panel_logo);
         mTaskManagerPanel = (LinearLayout) findViewById(R.id.task_manager_panel);
         mClipper = new QSDetailClipper(mTaskManagerPanel);
         mClockView = (TextView) findViewById(R.id.clock_view);
         mScrollView = (ObservableScrollView) findViewById(R.id.scroll_view);
-        mScrollView.setListener(this);
         mScrollView.setFocusable(false);
         mReserveNotificationSpace = findViewById(R.id.reserve_notification_space);
         mNotificationContainerParent = (NotificationsQuickSettingsContainer)
@@ -536,6 +552,9 @@ public class NotificationPanelView extends PanelView implements
                 }
             }
         });
+
+        setQSPanelLogo();
+        setQSStroke();
         setQSBackgroundAlpha();
         setQSBackgroundColor();
             
@@ -2839,6 +2858,36 @@ public class NotificationPanelView extends PanelView implements
                     false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.QS_TRANSPARENT_SHADE),
+                     false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_STROKE),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_STROKE_COLOR),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_STROKE_THICKNESS),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_CORNER_RADIUS),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_STROKE_DASH_WIDTH),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_STROKE_DASH_GAP),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_PANEL_LOGO),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_PANEL_LOGO_COLOR),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_PANEL_LOGO_ALPHA),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QS_BACKGROUND_COLOR),
                     false, this, UserHandle.USER_ALL);
             update();
         }
@@ -2875,10 +2924,33 @@ public class NotificationPanelView extends PanelView implements
                     resolver, CMSettings.Secure.LIVE_LOCK_SCREEN_ENABLED, 0) == 1;
             mQSShadeAlpha = Settings.System.getInt(
                     resolver, Settings.System.QS_TRANSPARENT_SHADE, 255);
-            setQSBackgroundAlpha();
             mQsSmartPullDown = Settings.System.getIntForUser(
                     resolver, Settings.System.QS_SMART_PULLDOWN, 0,
                     UserHandle.USER_CURRENT);
+            mQSStroke = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QS_STROKE, 0);
+            mCustomStrokeColor = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QS_STROKE_COLOR, mContext.getResources().getColor(R.color.system_accent_color));
+            mCustomStrokeThickness = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QS_STROKE_THICKNESS, 4);
+            mCustomCornerRadius = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QS_CORNER_RADIUS, 0);
+            mCustomDashWidth = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QS_STROKE_DASH_WIDTH, 0);
+            mCustomDashGap = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QS_STROKE_DASH_GAP, 10);
+            mQSPanelLogo = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QS_PANEL_LOGO, 0);
+            mQSPanelLogoColor = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QS_PANEL_LOGO_COLOR, mContext.getResources().getColor(R.color.system_accent_color));
+            mQSPanelLogoAlpha = Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.QS_PANEL_LOGO_ALPHA, 51);
+            mQSBackgroundColor = Settings.System.getInt( mContext.getContentResolver(), 
+			Settings.System.QS_BACKGROUND_COLOR, 0xff263238);
+            setQSPanelLogo();
+            setQSStroke();
+            setQSBackgroundColor();
+            setQSBackgroundAlpha();
         }
     }
 
@@ -2893,7 +2965,45 @@ public class NotificationPanelView extends PanelView implements
             }
         }
     }
-        
+
+    private void setQSStroke() {
+        final GradientDrawable qSGd = new GradientDrawable();
+        if (mQsContainer != null) {
+            if (mQSStroke == 0) { // Disable by setting border thickness to 0
+                qSGd.setColor(mContext.getResources().getColor(R.color.system_primary_color));
+                qSGd.setStroke(0, mContext.getResources().getColor(R.color.system_accent_color));
+                qSGd.setCornerRadius(mCustomCornerRadius);
+                mQsContainer.setBackground(qSGd);
+            } else if (mQSStroke == 1) { // use accent color for border
+                qSGd.setColor(mContext.getResources().getColor(R.color.system_primary_color));
+                qSGd.setStroke(mCustomStrokeThickness, mContext.getResources().getColor(R.color.system_accent_color),
+                        mCustomDashWidth, mCustomDashGap);
+            } else if (mQSStroke == 2) { // use custom border color
+                qSGd.setColor(mContext.getResources().getColor(R.color.system_primary_color));
+                qSGd.setStroke(mCustomStrokeThickness, mCustomStrokeColor, mCustomDashWidth, mCustomDashGap);
+            }
+
+            if (mQSStroke != 0) {
+                qSGd.setCornerRadius(mCustomCornerRadius);
+                mQsContainer.setBackground(qSGd);
+            }
+        }
+    }
+
+    private void setQSPanelLogo() {
+        if (mQSPanelLogo == 0) {
+            mRRPanelLogo.setVisibility(View.GONE);
+        } else if (mQSPanelLogo == 1) {
+            mRRPanelLogo.setImageAlpha(mQSPanelLogoAlpha);
+            mRRPanelLogo.setColorFilter(mContext.getResources().getColor(R.color.system_accent_color));
+            mRRPanelLogo.setVisibility(View.VISIBLE);
+        } else if (mQSPanelLogo == 2) {
+            mRRPanelLogo.setImageAlpha(mQSPanelLogoAlpha);
+            mRRPanelLogo.setColorFilter(mQSPanelLogoColor);
+            mRRPanelLogo.setVisibility(View.VISIBLE);
+        }
+    }
+
     @Override
     public boolean hasOverlappingRendering() {
         return !mDozing;
@@ -2972,8 +3082,6 @@ public class NotificationPanelView extends PanelView implements
         mQsColorSwitch = Settings.System.getIntForUser(mContext.getContentResolver(),
                 Settings.System.QS_COLOR_SWITCH, 0,
                 UserHandle.USER_CURRENT) == 1;
-        int mQSBackgroundColor = Settings.System.getInt( mContext.getContentResolver(), 
-			Settings.System.QS_BACKGROUND_COLOR, 0xff263238);
 	if (mQsColorSwitch) {
         	if (mQsContainer != null) {
                		 mQsContainer.getBackground().setColorFilter(

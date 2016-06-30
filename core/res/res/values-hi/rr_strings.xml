@@ -24,10 +24,10 @@
   <string name="animation_fade">धुंधला करें</string>
   <string name="animation_slide_right">दायें से फिसलन</string>
   <string name="animation_slide_left">बाएं से फिसलन</string>
-  <string name="animation_slide_right_no_fade">Slide in right (No fade)</string>
-  <string name="animation_slide_left_no_fade">Slide in left (No fade)</string>
-  <string name="animation_slide_up">Slide in bottom</string>
-  <string name="animation_slide_down">Slide in top</string>
+  <string name="animation_slide_right_no_fade">दायें से स्लाइड (फीके के बिना)</string>
+  <string name="animation_slide_left_no_fade">बाएं से स्लाइड (फीके के बिना)</string>
+  <string name="animation_slide_up">तल से स्लाइड</string>
+  <string name="animation_slide_down">शीर्ष से स्लाइड</string>
   <string name="animation_default">डिफ़ॉल्ट</string>
   <string name="animation_translucent">पारभासी</string>
   <string name="animation_grow_shrink">Grow in (Top)</string>
